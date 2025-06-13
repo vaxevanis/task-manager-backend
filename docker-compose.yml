@@ -1,0 +1,18 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+      target: dev
+    working_dir: /app/apps/api-gateway
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount only the relevant workspace + root tooling
+      - ./apps/api-gateway:/app/apps/api-gateway
+      - ./.yarn:/app/.yarn:ro
+      - ./.yarnrc.yml:/app/.yarnrc.yml:ro
+      - ./package.json:/app/package.json:ro
+      - ./yarn.lock:/app/yarn.lock:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+    command: yarn workspace api-gateway start:dev

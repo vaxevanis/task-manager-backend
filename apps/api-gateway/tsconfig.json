@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "moduleResolution": "NodeNext",
+    "composite": true
+  },
+  "include": ["src"],
+  "exclude": [
+    "node_modules", // don't use glob here
+    "dist",
+    ".yarn",
+    "**/*.spec.ts",
+    "test"
+  ]
+}
