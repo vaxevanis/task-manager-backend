@@ -9,6 +9,7 @@
   "devDependencies": {
     "@eslint/js": "^9.18.0",
     "@types/node": "^24.0.1",
+    "@types/passport-jwt": "^4.0.1",
     "@typescript-eslint/eslint-plugin": "^8.34.0",
     "@typescript-eslint/parser": "^8.34.0",
     "eslint": "^9.28.0",
@@ -35,5 +36,11 @@
     "node": ">=18.0.0",
     "yarn": ">=4.0.0"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.2",
+  "dependencies": {
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1"
+  }
 }
