@@ -53,6 +53,11 @@ lerna-debug.log*
 !.yarn/sdks
 !.yarn/versions
 
+# Prisma generated files
+**/prisma/migrations
+**/prisma/node_modules/
+**/prisma/.env
+
 # Runtime data
 pids
 *.pid

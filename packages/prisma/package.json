@@ -1,0 +1,16 @@
+{
+  "name": "prisma",
+  "private": true,
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev"
+  },
+  "devDependencies": {
+    "prisma": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0"
+  }
+}
