@@ -20,6 +20,8 @@
     "baseUrl": ".", // Required for workspace imports
     "types": ["node"],
     "paths": {
+      "@task-manager/prisma": ["packages/prisma/src"],
+      "@task-manager/auth": ["packages/auth/src"],
       "@task-manager/*": ["packages/*/src"], // Shared libs
       "@api-gateway/*": ["apps/api-gateway/src"], // Workspace aliases
       "*": ["node_modules/*"]
