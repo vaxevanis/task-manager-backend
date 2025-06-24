@@ -1,0 +1,35 @@
+{
+  "name": "@task-manager/auth",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/core": "^11.1.3",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.1.3",
+    "bcrypt": "^6.0.0",
+    "class-validator": "^0.14.2",
+    "passport-jwt": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1"
+  },
+  "resolutions": {
+    "@types/passport": "^1.0.7"
+  }
+}
