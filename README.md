@@ -1,16 +1,16 @@
-# Task Manager Backend (Microservices)
+# Task Manager Backend (Modular Monolith)
 
-This is a monorepo for the Task Manager backend services, built with [NestJS](https://nestjs.com/), [TypeScript](https://www.typescriptlang.org/), and [Yarn Workspaces](https://yarnpkg.com/features/workspaces). Services are containerized with Docker and managed through `docker-compose`.
+This is a **modular monolith** backend for the Task Manager app, built with [NestJS](https://nestjs.com/), [TypeScript](https://www.typescriptlang.org/), and [Yarn Workspaces](https://yarnpkg.com/features/workspaces). The app is containerized with Docker and managed through `docker-compose`.
 
 ## Structure
 
 ```
 task-manager-backend/
-├── apps/                 # Application services
-│   ├── api-gateway/      # Entrypoint API Gateway
-│   ├── auth-service/     # (optional) Auth microservice
-│   └── task-service/     # (optional) Tasks microservice
-├── packages/             # (optional) Shared libraries
+├── apps/                 # Application services (NestJS apps)
+│   └── api-gateway/      # Main entrypoint API (HTTP server)
+├── packages/             # Shared modules
+│   ├── auth/             # Auth logic, decorators, JWT, etc.
+│   ├── prisma/           # Shared PrismaService + Client wrapper
 ├── .yarnrc.yml           # Yarn 4 configuration
 ├── yarn.lock             # Monorepo lockfile
 ├── package.json          # Root workspace config
@@ -18,63 +18,66 @@ task-manager-backend/
 └── tsconfig.base.json    # Shared TypeScript base config
 ```
 
-## Services
+## Packages
 
-- `api-gateway`: Handles HTTP traffic, routes to microservices, manages JWT auth.
-- `auth-service`: Handles user registration, login, and role-based access control.
-- `task-service`: Manages tasks with CRUD, filtering, and pagination.
+- **`@task-manager/auth`**: Provides `AuthModule`, `JwtStrategy`, guards, and custom decorators. Imported into apps like `api-gateway`.
+- **`@task-manager/prisma`**: Wraps PrismaClient in a singleton NestJS service. Shared by all apps that access the DB.
+- These are **shared libraries**, not standalone microservices.
 
-## Tech Stack
+## App
 
-- NestJS (per service)
-- Prisma ORM + PostgreSQL
-- JWT for authentication
-- Microservices
+- **`api-gateway`**: The main NestJS HTTP server. Imports `AuthModule`, uses `PrismaService`, and routes client traffic. Acts as the single point of entry to the backend.
+
+---
 
 ## High-Level Architecture
 
-                          ┌──────────────────────┐
-                          │     Web Browser      │
-                          └─────────┬────────────┘
+```
+                          ┌─────────────────────┐
+                          │     Web Browser     │
+                          └─────────────────────┘
                                     │
-                          ┌─────────▼────────────┐
-                          │   Next.js Frontend   │◄── SSR & API calls
-                          └─────────┬────────────┘
+                          ┌──────────────────────┐
+                          │   Next.js Frontend   │ ◇─ SSR & API calls
+                          └──────────────────────┘
                                     │
                             HTTP / API calls
                                     ▼
                           ┌──────────────────────┐
                           │   API Gateway (Nest) │
-                          └─────────┬────────────┘
-                    ┌──────────────┼────────────────────────┐
-                    ▼              ▼                        ▼
-           ┌────────────┐ ┌────────────────┐     ┌─────────────────┐
-           │ AuthService│ │ TaskService    │     │ UserService     │
-           └────────────┘ └────────────────┘     └─────────────────┘
+                          └──────────────────────┘
+                                    ▼
+                       ┌────────────────────────────┐
+                       │ Shared Logic via Packages  │
+                       │ - @task-manager/auth       │
+                       │ - @task-manager/prisma     │
+                       └────────────────────────────┘
+```
 
 ## Centralized Tooling Strategy
 
-This monorepo follows a centralized tooling architecture, designed to reduce duplication, ensure consistency, and simplify dependency management across multiple workspaces.
+This monorepo uses a **centralized tooling architecture** to reduce duplication and maintain consistency.
 
 ### Tooling Overview
 
-All development tools and configurations are defined once at the root of the repository and shared across all workspaces.
-This includes:
-Linters: eslint, prettier, and associated plugins
-TypeScript tooling: typescript, ts-node, ts-node-dev, tsconfig-paths
-Monorepo tooling: Yarn Workspaces (Berry v4), Corepack, nodeLinker: node-modules
+All development tooling is defined in the root `package.json`. This includes:
 
-Each app or package relies on this centralized configuration and does not define its own redundant devDependencies \*.
+- **Linters**: ESLint, Prettier
+- **TypeScript Tooling**: `ts-node`, `ts-node-dev`, `tsconfig-paths`
+- **Monorepo Management**: Yarn 4 (Berry) with Workspaces
+- **Node Modules Linking**: `nodeLinker: node-modules` (for compatibility)
 
-\*Some TypeScript type packages (like @types/node) are required per workspace if their code uses global types such as process, even when tooling is centralized. This is due to how Yarn
-Workspaces and TypeScript resolution work.
+> Each workspace inherits config from root, and only declares its own runtime dependencies.
+
+> `@types/node` and similar global types must still be declared per workspace due to how TypeScript resolution works.
 
 ### Key Practices
 
-Root-managed tooling: All dev tools are installed and versioned at the root.
-Workspaces are lean: Each workspace defines only its own dependencies. Shared tools live at the root.
-Project-local TypeScript config: Each workspace extends a base config (tsconfig.base.json) to inherit settings and path aliases.
-No nested installs: All packages are installed from the root using yarn install.
+- Dev tools live at the root, not per workspace.
+- Each workspace has a `tsconfig.json` extending `tsconfig.base.json` to inherit settings and path aliases..
+- **Never run `yarn add` inside a workspace** — always do it from the root to avoid nested `node_modules`.
+
+---
 
 ## Getting Started
 
@@ -84,13 +87,13 @@ No nested installs: All packages are installed from the root using yarn install.
 yarn install
 ```
 
-### 2. Run Services Locally with Docker
+### 2. Run All Services in Docker
 
 ```bash
 docker compose up --build
 ```
 
-### 3. Run a Single Service (e.g., API Gateway)
+### 3. Run API Gateway Locally (Dev)
 
 ```bash
 cd apps/api-gateway
@@ -107,17 +110,18 @@ yarn workspace api-gateway run start:dev
 
 ## Tooling
 
-- **NestJS**
-- **Yarn 4** (workspaces)
+- **NestJS** (Modular Monolith)
+- **Yarn 4** (with Workspaces)
 - **Docker / docker-compose**
+- **Prisma + PostgreSQL**
 - **ESLint / Prettier / Jest**
-- **ts-node-dev** (for hot reloading)
+- **ts-node-dev** for fast development
 
 ---
 
-## Project Commands
+## Common Commands
 
-Common commands from the root:
+Run these from the root:
 
 ```bash
 yarn workspaces foreach run lint
@@ -127,24 +131,25 @@ yarn workspaces foreach run test
 
 ---
 
-## Adding a New Service
+## Adding a New Feature Package
 
 ```bash
-nest new apps/new-service-name --no-git --skip-install
-cd apps/new-service-name
-yarn install
+mkdir packages/my-feature
+cd packages/my-feature
+nest g module my-feature
+# Then wire it up in tsconfig and package.json
 ```
-
-Update the root `package.json` if needed.
 
 ---
 
-## DEV Notes
+## Developer Notes
 
-- `nodeLinker: node-modules` is used in `.yarnrc.yml` to avoid Plug’n’Play issues.
-- Avoid mixing Yarn 1.x and Yarn 4 — install via Corepack.
+- Uses `nodeLinker: node-modules` in `.yarnrc.yml` for better ecosystem compatibility.
+- Uses `tsconfig-paths` for cleaner path aliases like `@task-manager/prisma`.
 
-```
+```bash
 corepack enable
 corepack prepare yarn@stable --activate
 ```
+
+---
