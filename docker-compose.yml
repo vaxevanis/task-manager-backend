@@ -10,6 +10,7 @@ services:
     volumes:
       # Mount only the relevant workspace + root tooling
       - ./apps/api-gateway:/app/apps/api-gateway
+      - ./packages:/app/packages
       - ./.yarn:/app/.yarn:ro
       - ./.yarnrc.yml:/app/.yarnrc.yml:ro
       - ./package.json:/app/package.json:ro
