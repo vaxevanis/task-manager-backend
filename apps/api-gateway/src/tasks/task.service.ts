@@ -6,7 +6,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TaskService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(dto: CreateTaskDto, userId: string) {
     return this.prisma.task.create({
@@ -38,6 +38,10 @@ export class TaskService {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { [sortBy]: order },
+        include: {
+          createdBy: true,
+          updatedBy: true,
+        },
       }),
       this.prisma.task.count({ where }),
     ]);
@@ -46,7 +50,12 @@ export class TaskService {
   }
 
   async findOne(id: number) {
-    const task = await this.prisma.task.findUnique({ where: { id } });
+    const task = await this.prisma.task.findUnique({
+      where: { id }, include: {
+        createdBy: true,
+        updatedBy: true,
+      },
+    });
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
@@ -58,6 +67,10 @@ export class TaskService {
       data: {
         ...dto,
         updatedById: userId,
+      },
+      include: {
+        createdBy: true,
+        updatedBy: true,
       },
     });
   }
