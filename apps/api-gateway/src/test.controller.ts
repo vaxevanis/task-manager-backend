@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles, RolesGuard } from '@task-manager/auth';
+import { Roles, RolesGuard, Public } from '@task-manager/auth';
 import { Request } from 'express';
 
 @Controller('test')
@@ -8,12 +8,20 @@ export class TestController {
   /**
    * Protected route with JWT authentication
    */
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @Get('protected')
   getProtected(@Req() req: Request) {
     return {
       message: 'You have access to protected route',
       user: req.user, // User info from JWT payload
+    };
+  }
+
+  @Public()
+  @Get('public')
+  getPublic(@Req() req: Request) {
+    return {
+      message: 'This is a public route',
     };
   }
 
