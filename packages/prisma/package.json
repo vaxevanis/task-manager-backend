@@ -6,10 +6,7 @@
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+    ".": "./dist/index.js"
   },
   "scripts": {
     "generate": "prisma generate",
@@ -17,7 +14,8 @@
     "build": "tsc -b"
   },
   "devDependencies": {
-    "prisma": "^5.0.0"
+    "prisma": "^5.0.0",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0"
