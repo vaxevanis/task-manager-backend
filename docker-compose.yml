@@ -8,12 +8,13 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Mount only the relevant workspace + root tooling
-      - ./apps/api-gateway:/app/apps/api-gateway
-      - ./packages:/app/packages
+      - ./apps/api-gateway:/app/apps/api-gateway:cached
+      - ./packages/auth:/app/packages/auth:cached
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
       - ./.yarn:/app/.yarn:ro
       - ./.yarnrc.yml:/app/.yarnrc.yml:ro
       - ./package.json:/app/package.json:ro
       - ./yarn.lock:/app/yarn.lock:ro
-      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+    environment:
+      NODE_ENV: development
     command: yarn workspace api-gateway start:dev
