@@ -1,35 +1,40 @@
 # apps/api-gateway/Dockerfile
 
-FROM node:24-alpine3.21 AS deps
+FROM node:20-slim AS base
 
 WORKDIR /app
 
 # Enable Corepack and install Yarn
 RUN corepack enable && corepack prepare yarn@4.9.2 --activate
 
-# Copy important monorepo files from root
+# Install required tools
+RUN apt-get update && apt-get install -y openssl
+
+# Copy monorepo files
 COPY .yarnrc.yml package.json yarn.lock ./
 COPY .yarn/ .yarn/
-COPY apps/api-gateway/package.json ./apps/api-gateway/package.json
 COPY tsconfig.base.json ./
+COPY apps/api-gateway/package.json ./apps/api-gateway/package.json
 COPY packages/prisma ./packages/prisma
+COPY packages/auth ./packages/auth
 
-
-# Install all deps centrally
+# Install all deps
 RUN yarn install
 
-# Stage 2: Dev environment
-FROM node:24-alpine3.21 AS dev
+# Generate Prisma client for correct platform
+RUN yarn workspace @task-manager/prisma prisma generate
+
+# Final stage
+FROM node:20-slim AS dev
 
 WORKDIR /app
 
 RUN corepack enable && corepack prepare yarn@4.9.2 --activate
+RUN apt-get update && apt-get install -y openssl
 
-COPY --from=deps /app /app
+# Copy prepared /app from builder
+COPY --from=base /app /app
 
-RUN yarn workspace @task-manager/prisma prisma generate
-
-# Add binaries to PATH
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
 CMD ["yarn", "workspace", "api-gateway", "start:dev"]

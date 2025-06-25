@@ -1,0 +1,14 @@
+# Ignore dependencies
+**/node_modules
+**/.turbo
+**/.next
+**/dist
+**/.prisma
+
+# Ignore config/editor cruft
+.DS_Store
+.env
+.env.local
+.env.development
+*.log
+*.tsbuildinfo
