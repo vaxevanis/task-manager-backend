@@ -96,6 +96,7 @@ docker compose up --build
 ### 3. Run API Gateway Locally (Dev)
 
 ```bash
+yarn build
 cd apps/api-gateway
 yarn start:dev
 ```
@@ -124,9 +125,9 @@ yarn workspace api-gateway run start:dev
 Run these from the root:
 
 ```bash
-yarn workspaces foreach run lint
-yarn workspaces foreach run build
-yarn workspaces foreach run test
+yarn workspaces foreach --all run lint
+yarn workspaces foreach --all run build
+yarn workspaces foreach --all run test
 ```
 
 ---
