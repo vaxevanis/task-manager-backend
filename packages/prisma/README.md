@@ -24,6 +24,14 @@ Run from the monorepo root:
 
 ---
 
+## DB seeding
+
+From prisma folder:
+
+```bash
+npx prisma db seed
+```
+
 ## Notes
 
 Keep all DB schema changes centralized in this workspace.
