@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@task-manager/prisma';
+import { PrismaService, taskWithUsers } from '@task-manager/prisma';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { QueryTaskDto } from './dto/query-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -38,10 +38,8 @@ export class TaskService {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { [sortBy]: order },
-        include: {
-          createdBy: true,
-          updatedBy: true,
-        },
+        include: taskWithUsers
+        ,
       }),
       this.prisma.task.count({ where }),
     ]);
@@ -68,10 +66,8 @@ export class TaskService {
         ...dto,
         updatedById: userId,
       },
-      include: {
-        createdBy: true,
-        updatedBy: true,
-      },
+      include: taskWithUsers,
+
     });
   }
 
