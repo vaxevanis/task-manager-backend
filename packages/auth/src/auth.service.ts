@@ -4,6 +4,7 @@ import * as bcrypt from "bcrypt";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
 import { PrismaService } from "@task-manager/prisma";
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     return this.signToken(user.id, user.email, user.role);
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, res: Response) {
 
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -38,13 +39,25 @@ export class AuthService {
     const accessToken = await this.signToken(user.id, user.email, user.role);
     const refreshToken = await this.signToken(user.id, user.email, user.role, '7d');
 
+    if (!refreshToken) {
+      throw new UnauthorizedException('Login failed');
+    }
+
+    // Set refresh token in HTTP-only cookie
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    });
+
     // Return full user info along with token
     return {
       id: user.id,
       email: user.email,
       role: user.role,
       accessToken: accessToken.token,
-      refreshToken: refreshToken.token
     };
   }
 
