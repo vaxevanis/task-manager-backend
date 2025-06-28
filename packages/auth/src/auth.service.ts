@@ -27,6 +27,8 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, res: Response) {
+    const refreshTokenExpireDays = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS) || 7;
+
 
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -37,7 +39,7 @@ export class AuthService {
     }
 
     const accessToken = await this.signToken(user.id, user.email, user.role);
-    const refreshToken = await this.signToken(user.id, user.email, user.role, '7d');
+    const refreshToken = await this.signToken(user.id, user.email, user.role, `${refreshTokenExpireDays}d`);
 
     if (!refreshToken) {
       throw new UnauthorizedException('Login failed');
@@ -48,7 +50,7 @@ export class AuthService {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: refreshTokenExpireDays * 24 * 60 * 60 * 1000, // 7 days
       path: '/',
     });
 
