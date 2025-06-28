@@ -1,5 +1,6 @@
-import { IsEnum, IsOptional, IsPositive, IsIn } from 'class-validator';
+import { IsEnum, IsOptional, IsPositive, IsIn, IsNumber } from 'class-validator';
 import { TaskStatus, Priority } from '@prisma/client';
+import { Type } from 'class-transformer';
 
 export class QueryTaskDto {
   @IsOptional()
@@ -12,10 +13,14 @@ export class QueryTaskDto {
 
   @IsOptional()
   @IsPositive()
+  @Type(() => Number)
+  @IsNumber()
   page?: number;
 
   @IsOptional()
   @IsPositive()
+  @Type(() => Number)
+  @IsNumber()
   limit?: number;
 
   @IsOptional()
