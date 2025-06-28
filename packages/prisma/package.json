@@ -14,7 +14,7 @@
     "build": "tsc -b"
   },
   "prisma": {
-  "seed": "ts-node seed.ts"
+    "seed": "ts-node seed.ts"
   },
   "devDependencies": {
     "prisma": "^5.0.0",

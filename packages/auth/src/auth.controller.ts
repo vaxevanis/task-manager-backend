@@ -4,6 +4,8 @@ import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
 import { Public } from "./public.decorator";
 import { JwtAuthGuard } from "./jwt.auth.guard";
+import { CookieGuard } from "./cookie.guard";
+import { RefreshToken } from "./refresh-token.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -22,8 +24,9 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  async refresh(@Body() body: { refreshToken: string }) {
-    return this.authService.refresh(body.refreshToken);
+  @UseGuards(CookieGuard)
+  async refresh(@RefreshToken() refreshToken: string) {
+    return this.authService.refresh(refreshToken);
   }
 
 }
