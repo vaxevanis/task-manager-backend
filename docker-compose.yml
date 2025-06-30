@@ -1,20 +1,70 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432" # host:container
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - task-manager-net
+  migrate:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./.yarn:/app/.yarn:ro
+      - ./.yarnrc.yml:/app/.yarnrc.yml:ro
+    depends_on:
+      - postgres
+    command: >
+      sh -c "
+      yarn workspace @task-manager/prisma migrate deploy &&
+      yarn workspace @task-manager/prisma prisma generate &&
+      yarn workspace @task-manager/prisma exec ts-node seed.ts
+      "
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis_data:/data
+    networks:
+      - task-manager-net
   api-gateway:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: apps/api-gateway/Dockerfile
       target: dev
-    working_dir: /app/apps/api-gateway
+    working_dir: /app
     ports:
       - "3000:3000"
     volumes:
-      - ./apps/api-gateway:/app/apps/api-gateway:cached
-      - ./packages/auth:/app/packages/auth:cached
-      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+      - ./:/app:cached
       - ./.yarn:/app/.yarn:ro
       - ./.yarnrc.yml:/app/.yarnrc.yml:ro
-      - ./package.json:/app/package.json:ro
-      - ./yarn.lock:/app/yarn.lock:ro
     environment:
       NODE_ENV: development
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - redis
+      - postgres
     command: yarn workspace api-gateway start:dev
+    networks:
+      - task-manager-net
+
+volumes:
+  pg_data:
+  redis_data:
+
+networks:
+  task-manager-net:
+    external: true
