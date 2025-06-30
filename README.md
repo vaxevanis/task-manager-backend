@@ -87,21 +87,46 @@ All development tooling is defined in the root `package.json`. This includes:
 yarn install
 ```
 
-### 2. Run All Services in Docker
+### 2. Build Packages & App
+
+1. Prisma Package
 
 ```bash
-docker compose up --build
+yarn workspace @task-manager/prisma generate
+yarn workspace @task-manager/prisma migrate
+yarn workspace @task-manager/prisma build
 ```
 
-### 3. Run API Gateway Locally (Dev)
+Database seeding to get you started
 
 ```bash
-yarn build
-cd apps/api-gateway
-yarn start:dev
+cd packages/prisma
+npx prisma db seed
 ```
 
-Or from root:
+2. Auth Package
+
+```bash
+yarn workspace @task-manager/auth build
+```
+
+3. Api Service
+
+build prisma
+
+```bash
+yarn workspace @task-manage/prisma run build
+```
+
+### 3. Run
+
+Use Docker
+
+```bash
+docker compose up --build api-gateway
+```
+
+or run Locally (Dev)
 
 ```bash
 yarn workspace api-gateway run start:dev

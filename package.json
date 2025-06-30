@@ -33,7 +33,7 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build": "yarn workspaces foreach --all --topological run build'",
+    "build": "yarn workspaces foreach --all --topological run build",
     "start:dev:api-gateway": "yarn --cwd api-gateway start:dev",
     "test": "echo 'Run tests per service via yarn --cwd <service> test'"
   },
