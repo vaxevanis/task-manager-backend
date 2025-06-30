@@ -115,20 +115,34 @@ yarn workspace @task-manager/auth build
 build prisma
 
 ```bash
-yarn workspace @task-manage/prisma run build
+yarn workspace @task-manager/prisma run build
 ```
 
-### 3. Run
+### 3. Run via Docker (Recommended)
 
-Use Docker
+Docker is configured for dev mode.
+Before you start docker make sure to Build Packages (step #2) first.
 
 ```bash
+docker network create task-manager-net
 docker compose up --build api-gateway
 ```
 
-or run Locally (Dev)
+### 3. Run Locally
+
+If you decide to run the project locally you must update the prisma/.env with the db connection string
+
+Alternatively create a docker instance for the postgres with something like this:
+
+docker run --name postgres-local \
+ -e POSTGRES_USER=your_user \
+ -e POSTGRES_PASSWORD=your_password \
+ -e POSTGRES_DB=your_db \
+ -p 5432:5432 \
+ -d postgres:15-alpine
 
 ```bash
+docker run --name redis-local -p 6379:6379 -d redis:7-alpine
 yarn workspace api-gateway run start:dev
 ```
 
