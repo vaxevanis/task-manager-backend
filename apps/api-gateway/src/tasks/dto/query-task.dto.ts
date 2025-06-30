@@ -24,7 +24,7 @@ export class QueryTaskDto {
   limit?: number;
 
   @IsOptional()
-  @IsIn(['createdAt', 'dueDate', 'priority'])
+  @IsIn(['createdAt', 'dueDate', 'priority', 'title'])
   sortBy?: string;
 
   @IsOptional()
